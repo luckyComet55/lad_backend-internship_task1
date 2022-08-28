@@ -1,0 +1,17 @@
+{
+  "name": "lad_backend-internship_task1",
+  "version": "1.0.0",
+  "description": "Little project for internship pt. 1",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ivan Kurikhin <kurikhin.ivan@yandex.ru>",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/boom": "^10.0.0",
+    "@hapi/hapi": "^20.2.2",
+    "node-fetch": "^3.2.10"
+  }
+}
