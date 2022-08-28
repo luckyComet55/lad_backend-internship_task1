@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-const regexBodyFinder = /<body>[^]+<\/body>/g
+const regexBodyFinder = /<body[^]*?>[^]+<\/body>/g
 const regexTagFinder = /<\/?[^]+?>/g;
 const regexContentFinder = /title="(?<named>[^]+?)"/g
 const regexScriptFinder = /<script[^]*?>[^]*?<\/script>/g
@@ -12,7 +12,7 @@ async function siteScrabbler(request, reply) {
 
     let words = [];
 
-    const response = await fetch("https://" + targets[1]);
+    const response = await fetch(targets[1]);
     const html = await response.text();
     const body = html.match(regexBodyFinder)[0].replace(regexScriptFinder, "");
 
