@@ -1,14 +1,13 @@
 import fetch from "node-fetch";
+import createTemplate from "../templates/main_template.js";
+import pdf from "html-pdf";
+import fs from "fs";
 
 const regexBodyFinder = /<body[^]*?>[^]+<\/body>/g
 const regexTagFinder = /<\/?[^]+?>/g;
 const regexScriptFinder = /<script[^]*?>[^]*?<\/script>/g
 const regexStyleFinder = /<style[^]*?>[^]*?<\/style>/g
 const regexIsWord = /[a-zа-я]+-?[a-zа-я]*/gi
-
-function createPDF(...[counts, word]) {
-
-}
 
 function mostCommon(wordMap) {
     const wordCounter = [[0, ""], [0, ""], [0, ""]]
@@ -26,7 +25,7 @@ function mostCommon(wordMap) {
         }
     })
 
-    return wordCounter;
+    return `${wordCounter[0][1]} | ${wordCounter[1][1]} | ${wordCounter[2][1]}`;
 }
 
 async function pageScraper(url) {
@@ -51,7 +50,7 @@ async function pageScraper(url) {
     return wordCounter;
 }
 
-async function siteScraper(request, reply) {
+async function siteScraper(request, h) {
     const targets = typeof request.query.sites === "string" ? [request.query.sites] : request.query.sites;
     if(targets === undefined) {
         return {
@@ -67,7 +66,7 @@ async function siteScraper(request, reply) {
         for (let target of targets) {
             console.log(target)
             const mostWritten = await pageScraper(target);
-            result = result.concat(mostCommon(mostWritten));
+            result.push([target, mostCommon(mostWritten)]);
         }
     } catch (err) {
         if(err.code === "ERR_INVALID_URL") {
@@ -78,6 +77,12 @@ async function siteScraper(request, reply) {
             }
         }
     }
+    console.log(result);
+    const pdfTemplate = createTemplate(result);
+    const options = {format: "Letter"};
+    pdf.create(pdfTemplate, options).toStream((err, stream) => {
+        stream.pipe(fs.createWriteStream("./file.pdf"));
+    })
 
     return {
         status: 200,
