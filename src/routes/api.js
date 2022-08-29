@@ -2,7 +2,6 @@ import fetch from "node-fetch";
 
 const regexBodyFinder = /<body[^]*?>[^]+<\/body>/g
 const regexTagFinder = /<\/?[^]+?>/g;
-const regexContentFinder = /(title|aria-label)="(?<named>[^]+?)"/g
 const regexScriptFinder = /<script[^]*?>[^]*?<\/script>/g
 const regexStyleFinder = /<style[^]*?>[^]*?<\/style>/g
 const regexIsWord = /[a-zа-я]+-?[a-zа-я]*/gi
@@ -37,11 +36,6 @@ async function pageScraper(url) {
 
     const html = await response.text();
     const body = html.match(regexBodyFinder)[0].replace(regexScriptFinder, "").replace(regexStyleFinder, "");
-
-    for (let match of body.matchAll(regexContentFinder)) {
-        words = words.concat(match.groups.named.match(regexIsWord));
-        words = words.filter(n => n !== null);
-    }
 
     words = words.concat(body.replace(regexTagFinder, " ").match(regexIsWord));
 
