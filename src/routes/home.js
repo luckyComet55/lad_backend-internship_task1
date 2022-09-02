@@ -1,7 +1,7 @@
 async function response() {
     return {
         status: 200,
-        result: "ok",
+        result: "OK",
         message: "Successfully connected to API"
     }
 }

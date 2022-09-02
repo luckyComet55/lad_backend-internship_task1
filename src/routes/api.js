@@ -1,7 +1,5 @@
 import fetch from "node-fetch";
-import createTemplate from "../templates/main_template.js";
-import pdf from "html-pdf";
-import fs from "fs";
+import createPdf from "../templates/main_template.js";
 
 const regexBodyFinder = /<body[^]*?>[^]+<\/body>/g
 const regexTagFinder = /<\/?[^]+?>/g;
@@ -59,14 +57,15 @@ async function siteScraper(request, h) {
             message: "Arguments under key 'sites' are required"
         }
     }
-    console.log(targets)
     let result = [];
 
     try {
         for (let target of targets) {
-            console.log(target)
             const mostWritten = await pageScraper(target);
-            result.push([target, mostCommon(mostWritten)]);
+            result.push({
+                name: target,
+                words: mostCommon(mostWritten)
+            });
         }
     } catch (err) {
         if(err.code === "ERR_INVALID_URL") {
@@ -77,18 +76,27 @@ async function siteScraper(request, h) {
             }
         }
     }
-    console.log(result);
-    const pdfTemplate = createTemplate(result);
-    const options = {format: "Letter"};
-    pdf.create(pdfTemplate, options).toStream((err, stream) => {
-        stream.pipe(fs.createWriteStream("./file.pdf"));
-    })
 
-    return {
-        status: 200,
-        result: "OK",
-        message: result
+    const options = { format: "A4" };
+    const document = {
+        data: {
+            parsed: result
+        },
+        type: "buffer"
     }
+
+    let pdfRes;
+    try {
+        pdfRes = await createPdf(document, options);
+    } catch (err) {
+        console.error(err);
+        return {
+            status: 500,
+            result: "Internal server error"
+        }
+    }
+
+    return h.pdf(pdfRes);
 }
 
 export const execHand = {

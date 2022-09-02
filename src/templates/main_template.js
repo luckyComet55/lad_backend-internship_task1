@@ -1,58 +1,44 @@
-export default (data) => {
-    let insertData = "";
-    for (let chunk of data) {
-        insertData = insertData.concat(`\n<tr>
-    <td>${chunk[0]}</td>
-    <td>${chunk[1]}</td>
-</tr>`)
-    }
-    return `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        .table {
-            width: 60%;
-            margin-bottom: 20px;
-            table-layout: fixed;
-            border: 1px solid #dddddd;
-            border-collapse: collapse;
-            text-align: center;
-        }
+import pdf from "html-pdf";
+import Handlebars from "handlebars";
+import fs from "fs";
+import {URL} from "url";
+const __dirname = (new URL(".", import.meta.url).pathname).slice(1);
 
-        .table th {
-            font-weight: bold;
-            padding: 5px;
-            background: #efefef;
-            border: 1px solid #dddddd;
-        }
+export default function createPdfSync(document, options) {
+    const html = fs.readFileSync(__dirname + "template.html", "utf8");
+    return new Promise((resolve, reject) => {
+        console.log(document.data);
+        const htmlCompiled = Handlebars.compile(html)(document.data);
+        const pdfRes = pdf.create(htmlCompiled, options);
 
-        .table td {
-            border: 1px solid #dddddd;
-            padding: 5px;
+        switch (document.type) {
+            case "buffer":
+                pdfRes.toBuffer((err, res) => {
+                    if(err) {
+                        reject(err);
+                    }
+                    resolve(res);
+                })
+                break;
+            case "file":
+                pdfRes.toFile(document.filename, (err, res) => {
+                    if(err) {
+                        reject(err);
+                    }
+                    resolve(res);
+                })
+                break;
+            case "stream":
+                pdfRes.toStream((err, res) => {
+                    if(err) {
+                        reject(err);
+                    }
+                    resolve(res);
+                })
+                break;
+            default:
+                reject("Incorrect parameters");
+                break;
         }
-
-        .table tbody tr:nth-child(odd) {
-            background: #ffff;
-        }
-
-        .table tbody tr:nth-child(even) {
-            background: #f7f7f7;
-        }
-    </style>
-</head>
-<body>
-    <h1>Data Report</h1>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>URL</th>
-                <th>Most common words</th>
-            </tr>
-        </thead>
-        <tbody>${insertData}
-        </tbody>
-    </table>
-</body>
-</html>`
+    })
 }

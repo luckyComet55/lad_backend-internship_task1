@@ -2,8 +2,7 @@
 
 import Hapi from "@hapi/hapi";
 import fs from "fs";
-import {URL} from "url";
-const __dirname = (new URL(".", import.meta.url).pathname).slice(1);
+import hapi_response_utilities from "hapi-response-utilities"
 
 import {execHand} from "./routes/api.js";
 import {homeHand} from "./routes/home.js";
@@ -12,6 +11,10 @@ export default async function createServer() {
     const server = Hapi.server({
         host: "localhost",
         port: "8000"
+    })
+
+    await server.register({
+        plugin: hapi_response_utilities
     })
 
     server.route([
