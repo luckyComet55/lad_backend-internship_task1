@@ -11,12 +11,10 @@
   "author": "Ivan Kurikhin <kurikhin.ivan@yandex.ru>",
   "license": "ISC",
   "dependencies": {
-    "@hapi/boom": "^10.0.0",
     "@hapi/hapi": "^20.2.2",
     "handlebars": "^4.7.7",
     "hapi-response-utilities": "^2.0.0",
     "html-pdf": "^3.0.1",
-    "node-fetch": "^3.2.10",
-    "pdf-creator-node": "^2.3.5"
+    "node-fetch": "^3.2.10"
   }
 }
